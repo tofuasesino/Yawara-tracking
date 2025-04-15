@@ -1,0 +1,73 @@
+package com.yawara.tracking.ui.viewmodel
+
+import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.yawara.tracking.data.datasource.FirebaseManager
+import com.yawara.tracking.domain.model.CheckIn
+import com.yawara.tracking.domain.usecase.Utils
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
+class CheckInViewModel : ViewModel() {
+    private val db = FirebaseManager.firestore.collection("checkIns")
+
+    private val _alreadyCheckIn = mutableStateOf<Boolean?>(null)
+    val alreadyCheckedIn: State<Boolean?> = _alreadyCheckIn
+
+    var itemList by mutableStateOf<List<CheckIn>>(emptyList())
+
+    init {
+        checkLastCheckIn()
+    }
+
+    suspend fun fetchCheckIns() {
+        db
+            .get()
+            .addOnSuccessListener { docs ->
+                Log.d("Firestore results", "Cogiendo datos")
+                itemList = docs.toObjects(CheckIn::class.java)
+                Log.d("Firestore results", "Datos recogidos.")
+            }
+            .addOnFailureListener { exception ->
+                Log.i("Firestore results", "Error: ", exception)
+            }
+    }
+
+
+    fun checkInUser() {
+
+        if (_alreadyCheckIn.value == true) return
+
+        viewModelScope.launch {
+            val checkIn = hashMapOf(
+                "userId" to FirebaseManager.auth.currentUser?.uid.toString(),
+                "timestamp" to Utils.getCurrentDate()
+            )
+
+            db.document().set(checkIn)
+                .addOnSuccessListener {
+                    Log.i("CheckIn", "Satisfactorio")
+                    _alreadyCheckIn.value = true
+                }
+                .addOnFailureListener { Log.i("CheckIn", ":(") }
+        }
+    }
+
+    private fun checkLastCheckIn() {
+        viewModelScope.launch {
+            val snapshot = db
+                .whereEqualTo("userId", FirebaseManager.auth.currentUser?.uid.toString())
+                .whereEqualTo("timestamp", Utils.getCurrentDate())
+                .get()
+                .await()
+
+            _alreadyCheckIn.value = !snapshot.isEmpty
+        }
+    }
+
+}
