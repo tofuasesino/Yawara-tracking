@@ -26,12 +26,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.yawara.tracking.data.datasource.FirebaseManager
 import com.yawara.tracking.domain.usecase.Utils
 
@@ -148,7 +146,7 @@ fun createUserDoc(email: String, nameAndSurname: String) {
             "name" to nameAndSurname,
             "email" to email,
             "role" to "alumno",
-            "joinDate" to Utils.getCurrentDate()
+            "joinDate" to Utils.getDateZeroed()
         )
 
         FirebaseManager.firestore.collection("users").document(uid).set(userDoc)

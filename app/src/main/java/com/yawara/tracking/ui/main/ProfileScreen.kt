@@ -21,7 +21,7 @@ import com.yawara.tracking.ui.viewmodel.ProfileScreenViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ProfileScreen(viewModel: ProfileScreenViewModel = viewModel()) {
+fun ProfileScreen(navController: NavController, viewModel: ProfileScreenViewModel = viewModel()) {
 
     Box(
         modifier = Modifier
@@ -32,6 +32,9 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = viewModel()) {
         Button(
             onClick = {
                 viewModel.closeSession()
+                navController.navigate(Screen.Auth.route) {
+                    popUpTo(Screen.Dashboard.route) { inclusive = true }
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {

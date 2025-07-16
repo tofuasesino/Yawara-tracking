@@ -51,7 +51,7 @@ fun AuthScreen(navigateToLogin: () -> Unit = {}, navigateToSignUp: () -> Unit = 
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Dojo Yawara", fontSize = 60.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Siempre caminaremos juntos", style = MaterialTheme.typography.titleMedium)
+        Text(text = "Jiu Jitsu Academy", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.weight(1f))
         Button(
             modifier = Modifier

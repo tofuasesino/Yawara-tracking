@@ -7,11 +7,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.yawara.tracking.data.datasource.FirebaseManager
 import com.yawara.tracking.domain.model.CheckIn
 import com.yawara.tracking.domain.usecase.Utils
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class CheckInViewModel : ViewModel() {
     private val db = FirebaseManager.firestore.collection("checkIns")
@@ -25,7 +29,7 @@ class CheckInViewModel : ViewModel() {
         checkLastCheckIn()
     }
 
-    suspend fun fetchCheckIns() {
+    fun fetchCheckIns() {
         db
             .get()
             .addOnSuccessListener { docs ->
@@ -46,28 +50,33 @@ class CheckInViewModel : ViewModel() {
         viewModelScope.launch {
             val checkIn = hashMapOf(
                 "userId" to FirebaseManager.auth.currentUser?.uid.toString(),
-                "timestamp" to Utils.getCurrentDate()
+                "timestamp" to Utils.getDateZeroed()
             )
 
             db.document().set(checkIn)
                 .addOnSuccessListener {
                     Log.i("CheckIn", "Satisfactorio")
                     _alreadyCheckIn.value = true
+
                 }
                 .addOnFailureListener { Log.i("CheckIn", ":(") }
         }
     }
 
+
+    // Falta implementar la comprobación de si el usuario ya ha realizado el checkIn hoy.
     private fun checkLastCheckIn() {
         viewModelScope.launch {
             val snapshot = db
                 .whereEqualTo("userId", FirebaseManager.auth.currentUser?.uid.toString())
-                .whereEqualTo("timestamp", Utils.getCurrentDate())
+                .whereEqualTo("timestamp", Utils.getDateZeroed())
                 .get()
                 .await()
 
             _alreadyCheckIn.value = !snapshot.isEmpty
         }
     }
+
+
 
 }

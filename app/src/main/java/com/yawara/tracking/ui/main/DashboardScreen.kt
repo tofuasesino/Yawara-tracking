@@ -1,7 +1,6 @@
 package com.yawara.tracking.ui.main
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,25 +15,53 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavController
+import co.yml.charts.axis.AxisData
+import co.yml.charts.axis.DataCategoryOptions
+import co.yml.charts.common.model.Point
+import co.yml.charts.common.utils.DataUtils
+import co.yml.charts.ui.barchart.BarChart
+import co.yml.charts.ui.barchart.VerticalBarChart
+import co.yml.charts.ui.barchart.models.BarChartData
+import co.yml.charts.ui.barchart.models.BarChartType
+import co.yml.charts.ui.barchart.models.BarData
+import co.yml.charts.ui.barchart.models.BarStyle
+import com.google.common.collect.Multimaps.index
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-import com.yawara.tracking.domain.model.Post
+import com.yawara.tracking.domain.model.CheckIn
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.viewmodel.DashboardViewModel
 import com.yawara.tracking.ui.viewmodel.PostViewModel
 
 @Composable
 fun DashboardScreen(
-    dashBoardViewModel: DashboardViewModel = viewModel()
+    navController: NavController,
+    viewModel: DashboardViewModel = viewModel()
 ) {
+
+    val viewModel: DashboardViewModel = viewModel()
+    val chartDates by viewModel.chartDatesStateFlow.collectAsState()
+
+    // Only call once per screen lifetime
+    val hasFetched = remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if(!hasFetched.value){
+            viewModel.fetchThirtyCheckInsByUser()
+            hasFetched.value = true
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -42,40 +69,91 @@ fun DashboardScreen(
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .verticalScroll(rememberScrollState())
     ) {
-
-
-        Text(text = "Dashboard", style = MaterialTheme.typography.displayLarge)
+        Text(
+            text = "Tu asistencia los últimos 30 días",
+            style = MaterialTheme.typography.displayLarge,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
 
         AttendanceChartCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 300.dp)
+                .heightIn(min = 300.dp), chartDates
         )
         Spacer(modifier = Modifier.height(16.dp))
-        RecentPosts(modifier = Modifier.fillMaxWidth())
-
+        RecentPosts(modifier = Modifier.fillMaxWidth(), navController)
     }
-
-
 }
 
 @Composable
-fun AttendanceChartCard(modifier: Modifier = Modifier) {
+fun AttendanceChartCard(modifier: Modifier = Modifier, chartDates: Set<String>) {
+
+
+    val maxRange = 1
+    val lastThirtyDays = Utils.getLastThirtyDaysFormatted()
+    val checkInDates: Set<String> = chartDates
+
+    val barData = lastThirtyDays.mapIndexed { index, date ->
+        BarData(Point(index.toFloat(), if (checkInDates.contains(date)) 1f else 0f), label = date)
+    }
+    val yStepSize = 1
+
+
+    val xAxisData = AxisData.Builder()
+        .axisStepSize(1.dp)
+        .steps(barData.size - 1)
+        .bottomPadding(10.dp)
+        .axisLabelAngle(-35f)
+        .axisLabelColor(MaterialTheme.colorScheme.onBackground)
+        .startDrawPadding(20.dp)
+        .labelData { index ->
+            when (index) {
+                0 -> barData.first().label
+                barData.lastIndex -> barData.last().label
+                else -> ""
+            }
+        }
+        .build()
+
+    val yAxisData = AxisData.Builder()
+        .steps(yStepSize)
+        .labelAndAxisLinePadding(20.dp)
+        .axisOffset(20.dp)
+        .axisLabelColor(color = MaterialTheme.colorScheme.onBackground)
+        .labelData { index -> (index * (maxRange / yStepSize)).toString() }
+        .build()
+
+    val barChartData = BarChartData(
+        chartData = barData,
+        horizontalExtraSpace = 8.dp,
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        barStyle = BarStyle(
+            paddingBetweenBars = 3.dp,
+            barWidth = 8.dp
+        ),
+        showXAxis = true,
+        backgroundColor = MaterialTheme.colorScheme.background,
+        showYAxis = false
+    )
+
     Card(
-        modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
     ) {
-        Text(
-            text = "Aquí irá el gráfico",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(5.dp)
+        BarChart(
+            modifier = Modifier
+                .height(300.dp)
+                .fillMaxWidth(), barChartData = barChartData
         )
-
     }
 }
 
 @Composable
-fun RecentPosts(modifier: Modifier = Modifier, viewModel: PostViewModel = viewModel()) {
+fun RecentPosts(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    viewModel: PostViewModel = viewModel()
+) {
     val recentPosts by viewModel.recentPosts
 
     LaunchedEffect(Unit) {
@@ -96,7 +174,7 @@ fun RecentPosts(modifier: Modifier = Modifier, viewModel: PostViewModel = viewMo
             )
         } else {
             recentPosts.forEach { post ->
-                PostCard(post)
+                RecentPostCard(post, navController)
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -104,47 +182,6 @@ fun RecentPosts(modifier: Modifier = Modifier, viewModel: PostViewModel = viewMo
 
 }
 
-@Composable
-fun PostCard(post: Post) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 120.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            Text(text = post.title, style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(4.dp))
-            Row {
-                Text(
-                    text = "${post.author}, ${Utils.parseDate(post.createdAt)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            /* In the future, add a overflow = overflow.ellipse (or smth similar)
-            * so if the texts is quite long, the post shows three dots (. . .)
-            * and by clicking we can get them to the full post in one way or another.
-            * Also, for that, there should be a max size of the card. That way
-            * we can achieve some visual balance!
-            * */
-
-            if (post.type == "video" && post.videoUrl.isNotEmpty()) {
-                YoutubeVideoPlayer(post.videoUrl)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            Text(
-                text = post.content,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
 
 @Composable
 fun YoutubeVideoPlayer(videoUrl: String) {

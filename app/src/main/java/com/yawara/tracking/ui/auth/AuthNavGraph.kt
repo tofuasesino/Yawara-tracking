@@ -21,7 +21,7 @@ fun AuthNavGraph(navigationController: NavHostController, paddingValues: Padding
     val auth = FirebaseManager.auth
     var startDestination by rememberSaveable { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(auth.currentUser) {
+    LaunchedEffect(Unit) {
 
         if (auth.currentUser != null) {
             val userDoc =
@@ -44,15 +44,23 @@ fun AuthNavGraph(navigationController: NavHostController, paddingValues: Padding
                     navigateToLogin = { navigationController.navigate(Screen.Login.route) },
                     navigateToSignUp = { navigationController.navigate(Screen.Register.route) })
             }
-            composable(Screen.Login.route) { LoginScreen() { navigationController.navigate(Screen.Dashboard.route) } }
-            composable(Screen.Register.route) {
-                RegisterScreen() {
-                    navigationController.navigate(
-                        Screen.Dashboard.route
-                    )
+            composable(Screen.Login.route) {
+                LoginScreen() {
+                    navigationController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Auth.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
-            composable(Screen.Dashboard.route) { MainScreen() }
+            composable(Screen.Register.route) {
+                RegisterScreen() {
+                    navigationController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Auth.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            }
+            composable(Screen.Dashboard.route) { MainScreen(navController = navigationController) }
         }
     }
 

@@ -77,6 +77,9 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
 
+    // Charts
+    implementation(libs.ycharts)
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
