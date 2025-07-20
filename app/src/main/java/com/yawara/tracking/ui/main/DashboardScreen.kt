@@ -11,7 +11,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import co.yml.charts.axis.AxisData
@@ -39,6 +43,8 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import com.yawara.tracking.R
+import com.yawara.tracking.data.datasource.FirebaseManager
 import com.yawara.tracking.domain.model.CheckIn
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.viewmodel.DashboardViewModel
@@ -49,40 +55,61 @@ fun DashboardScreen(
     navController: NavController,
     viewModel: DashboardViewModel = viewModel()
 ) {
-
-    val viewModel: DashboardViewModel = viewModel()
     val chartDates by viewModel.chartDatesStateFlow.collectAsState()
+
+
+    val user = FirebaseManager.auth.currentUser
+    val userRole = viewModel.userRole.value
 
     // Only call once per screen lifetime
     val hasFetched = remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        if(!hasFetched.value){
+    LaunchedEffect(Unit, user?.uid) {
+        if (!hasFetched.value) {
             viewModel.fetchThirtyCheckInsByUser()
             hasFetched.value = true
         }
+
+        user?.uid?.let { viewModel.fetchUserRole(it) }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Text(
-            text = "Tu asistencia los últimos 30 días",
-            style = MaterialTheme.typography.displayLarge,
-            modifier = Modifier.padding(vertical = 5.dp)
-        )
-
-        AttendanceChartCard(
+    Scaffold(floatingActionButton = {
+        if (userRole == "admin" || userRole == "instructor") {
+            FloatingActionButton(
+                onClick = { navController.navigate("create_post_screen") }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.outline_add_circle_24),
+                    contentDescription = "Crear post"
+                )
+            }
+        }
+    })
+    { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 300.dp), chartDates
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        RecentPosts(modifier = Modifier.fillMaxWidth(), navController)
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = "Tu asistencia los últimos 30 días",
+                style = MaterialTheme.typography.displayLarge,
+                modifier = Modifier.padding(vertical = 5.dp)
+            )
+
+            AttendanceChartCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 300.dp), chartDates
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            RecentPosts(modifier = Modifier.fillMaxWidth(), navController)
+        }
     }
+
+
 }
 
 @Composable

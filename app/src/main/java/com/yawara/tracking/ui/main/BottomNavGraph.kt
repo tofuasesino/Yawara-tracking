@@ -25,5 +25,6 @@ fun BottomNavGraph(
         composable(Screen.CheckIn.route) { CheckInScreen() }
         composable(Screen.Posts.route) { PostsScreen() }
         composable(Screen.Profile.route) { ProfileScreen(mainNavController) }
+        composable(Screen.CreatePostScreen.route) { CreatePostScreen() }
     }
 }

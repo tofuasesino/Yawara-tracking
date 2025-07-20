@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.yawara.tracking.domain.model.Post
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.navigation.Screen
