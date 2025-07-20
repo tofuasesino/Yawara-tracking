@@ -18,10 +18,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,6 +36,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.yawara.tracking.data.datasource.FirebaseManager
 import com.yawara.tracking.domain.usecase.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -40,80 +47,127 @@ fun RegisterScreen(navigateToHome: () -> Unit) {
     var password by rememberSaveable { mutableStateOf("") }
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
     var nameAndSurname by rememberSaveable { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.weight(1f))
 
-        Text(text = "Registrarse", style = MaterialTheme.typography.displayLarge)
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        OutlinedTextField(
-            value = nameAndSurname,
-            onValueChange = { nameAndSurname = it },
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp),
-            label = { Text("Nombre y apellido") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            singleLine = true,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            singleLine = true,
-            label = { Text("Contraseña") },
-            onValueChange = { password = it },
-            visualTransformation = if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp),
-            trailingIcon = {
-                IconButton(onClick = { passwordHidden = !passwordHidden }) {
-                    val visibilityIcon =
-                        if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-
-                    val description = if (passwordHidden) "Ver contraseña" else "Ocultar contraseña"
-                    Icon(imageVector = visibilityIcon, contentDescription = description)
-                }
-            }
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Button(
-            onClick = { registerUser(email, password, nameAndSurname, navigateToHome) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp),
-            shape = ButtonDefaults.squareShape
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Registrarse", style = MaterialTheme.typography.titleMedium)
-        }
+            Spacer(modifier = Modifier.weight(1f))
 
-        Spacer(modifier = Modifier.weight(2f))
+            Text(text = "Registrarse", style = MaterialTheme.typography.displayLarge)
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            OutlinedTextField(
+                value = nameAndSurname,
+                onValueChange = { nameAndSurname = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                label = { Text("Nombre y apellido") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = email,
+                singleLine = true,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = password,
+                singleLine = true,
+                label = { Text("Contraseña") },
+                onValueChange = { password = it },
+                visualTransformation = if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                trailingIcon = {
+                    IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                        val visibilityIcon =
+                            if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+
+                        val description =
+                            if (passwordHidden) "Ver contraseña" else "Ocultar contraseña"
+                        Icon(imageVector = visibilityIcon, contentDescription = description)
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Button(
+                onClick = {
+                    if (nameAndSurname.isEmpty()) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            snackbarHostState.showSnackbar("El nombre y apellido no puede estar vacío.")
+                        }
+                        return@Button
+                    }
+                    if (email.isEmpty() || password.isEmpty()) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            snackbarHostState.showSnackbar("El email y la contraseña no pueden estar vacíos.")
+                        }
+                        return@Button
+                    }
+                    if (email.contains(" ")) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            snackbarHostState.showSnackbar("El email no puede contener espacios.")
+                        }
+                        return@Button
+                    } else {
+                        val auth = FirebaseManager.auth
+
+
+                        auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.i("UserSignUp", "Success.")
+                                    createUserDoc(email, nameAndSurname)
+                                    navigateToHome()
+                                }
+                            }
+                            .addOnFailureListener {
+                                Log.i("UserSignUp", "Failure.")
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    snackbarHostState.showSnackbar("Error al registrar el usuario.")
+                                }
+                            }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                shape = ButtonDefaults.squareShape
+            ) {
+                Text("Registrarse", style = MaterialTheme.typography.titleMedium)
+            }
+
+            Spacer(modifier = Modifier.weight(2f))
+        }
     }
+
 }
+/*
 
 fun registerUser(
     email: String,
@@ -134,6 +188,8 @@ fun registerUser(
         }
         .addOnFailureListener { Log.i("UserSignUp", "Failure.") }
 }
+
+ */
 
 fun createUserDoc(email: String, nameAndSurname: String) {
     val auth = FirebaseManager.auth
