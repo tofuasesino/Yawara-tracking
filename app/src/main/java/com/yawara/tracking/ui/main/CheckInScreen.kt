@@ -30,7 +30,11 @@ fun CheckInScreen(viewModel: CheckInViewModel = viewModel()) {
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
-        Text(text = "Check In", style = MaterialTheme.typography.displayLarge)
+        Text(
+            text = "Check In",
+            style = MaterialTheme.typography.displayLarge,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
