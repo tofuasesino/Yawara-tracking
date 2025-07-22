@@ -1,5 +1,6 @@
 package com.yawara.tracking.ui.main
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
@@ -50,46 +55,60 @@ import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.viewmodel.DashboardViewModel
 import com.yawara.tracking.ui.viewmodel.PostViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DashboardScreen(
     navController: NavController,
     viewModel: DashboardViewModel = viewModel()
 ) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val chartDates by viewModel.chartDatesStateFlow.collectAsState()
 
-
-    val user = FirebaseManager.auth.currentUser
-    val userRole = viewModel.userRole.value
+    val user = viewModel.user
+    val userRole = user?.role
 
     // Only call once per screen lifetime
-    val hasFetched = remember { mutableStateOf(false) }
+    val hasFetched = rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit, user?.uid) {
+    // Flag to show the snackbar when a post is created
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val postCreated = savedStateHandle?.get<Boolean>("post_created") ?: false
+
+    LaunchedEffect(Unit) {
         if (!hasFetched.value) {
             viewModel.fetchThirtyCheckInsByUser()
             hasFetched.value = true
         }
-
-        user?.uid?.let { viewModel.fetchUserRole(it) }
+        if (postCreated) {
+            snackbarHostState.showSnackbar(
+                message = "Post creado con éxito."
+            )
+            savedStateHandle.remove<Boolean>("post_created")
+        }
     }
 
-    Scaffold(floatingActionButton = {
-        if (userRole == "admin" || userRole == "instructor") {
-            FloatingActionButton(
-                onClick = { navController.navigate("create_post_screen") }
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.outline_add_circle_24),
-                    contentDescription = "Crear post"
-                )
+    Scaffold(
+        floatingActionButton = {
+            if (userRole == "admin" || userRole == "instructor") {
+                FloatingActionButton(
+                    onClick = { navController.navigate("create_post_screen") },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.outline_add_circle_24),
+                        contentDescription = "Crear post"
+                    )
+                }
             }
-        }
-    })
-    { paddingValues ->
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) })
+    {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(horizontal = 16.dp, vertical = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {

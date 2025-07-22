@@ -45,7 +45,7 @@ fun LoginScreen(navigateToHome: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = rememberSaveable { SnackbarHostState() }
 
 
     Scaffold(

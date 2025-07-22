@@ -51,8 +51,8 @@ object Utils {
 
     fun extractVideoId(videoUrl: String): String? {
         // You can extract the video ID from a YouTube URL
-        // Example: https://www.youtube.com/watch?v=videoId
-        val regex = Regex("""^https?://(?:www\.)?youtube\.com/watch\?v=([A-Za-z0-9_-]{11})(?:[&#?].*)?$""",
+        // Example: https://www.youtube.com/watch?v=videoId and https://youtu.be/videoId
+        val regex = Regex("""(?:youtube\.com.*(?:v=)|youtu\.be/)([a-zA-Z0-9_-]{11})""",
         RegexOption.IGNORE_CASE)
         return regex.find(videoUrl)?.groupValues?.get(1)
     }

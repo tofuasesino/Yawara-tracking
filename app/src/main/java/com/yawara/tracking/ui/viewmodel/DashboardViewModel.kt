@@ -1,11 +1,18 @@
 package com.yawara.tracking.ui.viewmodel
 
+import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.firestore.DocumentSnapshot
 import com.yawara.tracking.data.datasource.FirebaseManager
 import com.yawara.tracking.domain.model.CheckIn
+import com.yawara.tracking.domain.model.Post
+import com.yawara.tracking.domain.model.User
 import com.yawara.tracking.domain.usecase.Utils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -20,28 +27,44 @@ class DashboardViewModel : ViewModel() {
     private val _userRole = mutableStateOf<String?>(null)
     val userRole = _userRole
 
+    private val _userName = mutableStateOf<String?>(null)
+    val userName = _userName
+
+    var user by mutableStateOf<User?>(null)
+
     init {
+        loadUser()
         fetchThirtyCheckInsByUser()
     }
 
-
-    fun fetchUserRole(uid: String) {
-        if (_userRole.value == null) {
-            viewModelScope.launch {
-                _userRole.value = getUserRole(uid)
+    fun loadUser() {
+        viewModelScope.launch {
+            val uid = FirebaseManager.auth.currentUser?.uid
+            uid?.let {
+                getUserInfo(it)
+                _userName.value = user?.name
+                _userRole.value = user?.role
             }
         }
     }
 
-    private suspend fun getUserRole(uid: String): String? {
+    fun fetchUserRole() {
 
-        val snapshot = FirebaseManager.firestore
-            .collection("users")
-            .document(uid)
-            .get()
-            .await()
+    }
 
-        return snapshot.getString("role")
+    private suspend fun getUserInfo(uid: String){
+
+        try {
+            val snapshot = FirebaseManager.firestore
+                .collection("users")
+                .document(uid)
+                .get()
+                .await()
+
+            user = snapshot.toObject(User::class.java)
+        } catch (e: Exception) {
+            Log.i("UserInfo", "Error getting user info", e)
+        }
 
     }
 
@@ -64,5 +87,23 @@ class DashboardViewModel : ViewModel() {
 
             _chartDatesStateFlow.value = checkInDates
         }
+    }
+
+    fun createPost(title: String, content: String, videoUrl: String, author: String) {
+
+        val type: String = if (videoUrl.isEmpty()) {
+            "post"
+        } else {
+            "video"
+        }
+
+        val post = Post(
+            title = title,
+            content = content,
+            type = type,
+            videoUrl = videoUrl,
+            author = author
+        )
+        FirebaseManager.firestore.collection("posts").add(post)
     }
 }

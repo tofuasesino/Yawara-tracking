@@ -34,22 +34,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-//Scaffold(
-//topBar = { MyTopAppBar() },
-//bottomBar = { MyNavigationBar(navController) }
-//) { innerPadding ->
-//    NavHost(
-//        navController = navigationController,
-//        startDestination = Screen.Home.route,
-//        modifier = Modifier.padding(innerPadding)
-//    ) {
-//        composable(Screen.Home.route) { HomeScreen() }
-//        composable(Screen.CheckIn.route) { CheckInScreen() }
-//        composable(Screen.Summary.route) { SummaryScreen() }
-//        composable(Screen.Notes.route) { NotesScreen() }
-//    }
-//}
-
 
 
 
