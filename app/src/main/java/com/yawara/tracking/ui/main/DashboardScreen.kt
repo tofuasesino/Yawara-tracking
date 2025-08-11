@@ -46,6 +46,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.yawara.tracking.R
+import com.yawara.tracking.data.repository.UserRepository
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.viewmodel.DashboardViewModel
 import com.yawara.tracking.ui.viewmodel.PostViewModel
@@ -53,9 +54,12 @@ import com.yawara.tracking.ui.viewmodel.PostViewModel
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DashboardScreen(
-    navController: NavController,
-    viewModel: DashboardViewModel = viewModel()
+    navController: NavController
 ) {
+
+    val userRepository = remember { UserRepository() }
+    val factory = remember { DashboardViewModelFactory(userRepository) }
+    val viewModel: DashboardViewModel = viewModel(factory = factory)
 
     val snackbarHostState = remember { SnackbarHostState() }
 

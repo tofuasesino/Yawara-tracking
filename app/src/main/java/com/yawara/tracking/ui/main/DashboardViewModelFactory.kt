@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.yawara.tracking.data.repository.UserRepository
 import com.yawara.tracking.ui.viewmodel.DashboardViewModel
 
-/*
+
 class DashboardViewModelFactory(private val repository: UserRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -16,4 +16,4 @@ class DashboardViewModelFactory(private val repository: UserRepository) :
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-*/
+

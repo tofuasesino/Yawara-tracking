@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.firestore.DocumentSnapshot
 import com.yawara.tracking.data.datasource.FirebaseManager
+import com.yawara.tracking.data.repository.UserRepository
 import com.yawara.tracking.domain.model.CheckIn
 import com.yawara.tracking.domain.model.Post
 import com.yawara.tracking.domain.model.User
@@ -22,9 +23,10 @@ import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class DashboardViewModel : ViewModel() {
+class DashboardViewModel(private val userRepository: UserRepository) : ViewModel() {
 
 
+    // var chartDatesStateFlow by mutableStateOf<List<String>>(emptyList())
     private val _chartDatesStateFlow = MutableStateFlow<Set<String>>(emptySet())
     val chartDatesStateFlow: MutableStateFlow<Set<String>> = _chartDatesStateFlow
 
@@ -34,12 +36,8 @@ class DashboardViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            val uid = FirebaseManager.auth.currentUser?.uid
-            uid?.let {
-                getUserInfo(uid)
-            }
+            userData = userRepository.getUserInfo()
             //fetchThirtyCheckInsByUser()
-
         }
 
     }
