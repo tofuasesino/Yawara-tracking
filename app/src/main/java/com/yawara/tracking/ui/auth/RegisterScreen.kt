@@ -167,30 +167,6 @@ fun RegisterScreen(navigateToHome: () -> Unit) {
     }
 
 }
-/*
-
-fun registerUser(
-    email: String,
-    password: String,
-    nameAndSurname: String,
-    navigateToHome: () -> Unit
-) {
-    val auth = FirebaseManager.auth
-
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.i("UserSignUp", "Success.")
-                createUserDoc(email, nameAndSurname)
-                navigateToHome()
-            }
-        }
-        .addOnFailureListener { Log.i("UserSignUp", "Failure.") }
-}
-
- */
-
 fun createUserDoc(email: String, nameAndSurname: String) {
     val auth = FirebaseManager.auth
 
@@ -202,6 +178,7 @@ fun createUserDoc(email: String, nameAndSurname: String) {
             "name" to nameAndSurname,
             "email" to email,
             "role" to "alumno",
+            "rank" to "white belt",
             "joinDate" to Utils.getDateZeroed()
         )
 

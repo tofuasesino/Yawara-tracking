@@ -53,5 +53,4 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileScreenViewMode
             }
         }
     }
-
 }

@@ -38,19 +38,14 @@ import co.yml.charts.axis.DataCategoryOptions
 import co.yml.charts.common.model.Point
 import co.yml.charts.common.utils.DataUtils
 import co.yml.charts.ui.barchart.BarChart
-import co.yml.charts.ui.barchart.VerticalBarChart
 import co.yml.charts.ui.barchart.models.BarChartData
-import co.yml.charts.ui.barchart.models.BarChartType
 import co.yml.charts.ui.barchart.models.BarData
 import co.yml.charts.ui.barchart.models.BarStyle
-import com.google.common.collect.Multimaps.index
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.yawara.tracking.R
-import com.yawara.tracking.data.datasource.FirebaseManager
-import com.yawara.tracking.domain.model.CheckIn
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.viewmodel.DashboardViewModel
 import com.yawara.tracking.ui.viewmodel.PostViewModel
@@ -66,8 +61,7 @@ fun DashboardScreen(
 
     val chartDates by viewModel.chartDatesStateFlow.collectAsState()
 
-    val user = viewModel.user
-    val userRole = user?.role
+    val user = viewModel.userData
 
     // Only call once per screen lifetime
     val hasFetched = rememberSaveable { mutableStateOf(false) }
@@ -76,11 +70,18 @@ fun DashboardScreen(
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     val postCreated = savedStateHandle?.get<Boolean>("post_created") ?: false
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(user) {
+
+        if (user != null && !hasFetched.value) {
+            viewModel.fetchThirtyCheckInsByUser()
+            hasFetched.value = true
+        }
+        /*
         if (!hasFetched.value) {
             viewModel.fetchThirtyCheckInsByUser()
             hasFetched.value = true
         }
+         */
         if (postCreated) {
             snackbarHostState.showSnackbar(
                 message = "Post creado con éxito."
@@ -91,7 +92,7 @@ fun DashboardScreen(
 
     Scaffold(
         floatingActionButton = {
-            if (userRole == "admin" || userRole == "instructor") {
+            if (user?.role == "admin" || user?.role == "instructor") {
                 FloatingActionButton(
                     onClick = { navController.navigate("create_post_screen") },
                     containerColor = MaterialTheme.colorScheme.primary,

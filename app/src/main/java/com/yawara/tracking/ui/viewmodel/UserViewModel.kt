@@ -13,6 +13,15 @@ import kotlinx.coroutines.tasks.await
 class UserViewModel : ViewModel() {
 
 
+    fun getCurrentUser() {
+        viewModelScope.launch {
+            val user = FirebaseManager.auth.currentUser
+            if (user != null) {
+                fetchUserRole(user.uid)
+            }
+        }
+    }
+
     fun fetchUserRole(userId: String) {
         viewModelScope.launch {
             val user = FirebaseManager.firestore.collection("users").document(userId).get().await()

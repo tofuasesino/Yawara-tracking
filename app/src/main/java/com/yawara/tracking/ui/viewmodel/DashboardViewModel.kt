@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ import com.yawara.tracking.domain.model.Post
 import com.yawara.tracking.domain.model.User
 import com.yawara.tracking.domain.usecase.Utils
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -22,60 +24,46 @@ import java.util.Locale
 
 class DashboardViewModel : ViewModel() {
 
+
     private val _chartDatesStateFlow = MutableStateFlow<Set<String>>(emptySet())
     val chartDatesStateFlow: MutableStateFlow<Set<String>> = _chartDatesStateFlow
-    private val _userRole = mutableStateOf<String?>(null)
-    val userRole = _userRole
 
-    private val _userName = mutableStateOf<String?>(null)
-    val userName = _userName
+    var userData by mutableStateOf<User?>(null)
+        private set
 
-    var user by mutableStateOf<User?>(null)
 
     init {
-        loadUser()
-        fetchThirtyCheckInsByUser()
-    }
-
-    fun loadUser() {
         viewModelScope.launch {
             val uid = FirebaseManager.auth.currentUser?.uid
             uid?.let {
-                getUserInfo(it)
-                _userName.value = user?.name
-                _userRole.value = user?.role
+                getUserInfo(uid)
             }
+            //fetchThirtyCheckInsByUser()
+
         }
-    }
-
-    fun fetchUserRole() {
 
     }
 
-    private suspend fun getUserInfo(uid: String){
-
+    private suspend fun getUserInfo(uid: String) {
         try {
-            val snapshot = FirebaseManager.firestore
-                .collection("users")
-                .document(uid)
-                .get()
-                .await()
-
-            user = snapshot.toObject(User::class.java)
+            Log.i("UID INFO 1", "$uid")
+            val snapshot = FirebaseManager.firestore.collection("users").document(uid).get().await()
+            userData = snapshot.toObject(User::class.java)?.copy(uid = uid)
+            //userData?.uid = uid
+            Log.i("UID INFO 2", "${userData?.uid}")
         } catch (e: Exception) {
-            Log.i("UserInfo", "Error getting user info", e)
+            Log.e("DashboardViewModel", "Error getting user info", e)
         }
-
     }
 
-    fun fetchThirtyCheckInsByUser() {
-        viewModelScope.launch {
-
+    suspend fun fetchThirtyCheckInsByUser() {
             val thirtyDaysAgo = Utils.getLastThirtyDaysZeroed()
 
+            Log.i("UID INFO", "${FirebaseManager.auth.currentUser?.uid}")
+            Log.i("UID INFO USER", "${userData?.uid}")
             val snapshot =
                 FirebaseManager.firestore.collection("checkIns")
-                    .whereEqualTo("userId", FirebaseManager.auth.currentUser?.uid.toString())
+                    .whereEqualTo("userId", userData?.uid)
                     .whereGreaterThanOrEqualTo("timestamp", thirtyDaysAgo)
                     .get()
                     .await()
@@ -86,7 +74,6 @@ class DashboardViewModel : ViewModel() {
             val checkInDates = checkIns.map { dateFormat.format(it.timestamp.toDate()) }.toSet()
 
             _chartDatesStateFlow.value = checkInDates
-        }
     }
 
     fun createPost(title: String, content: String, videoUrl: String, author: String) {
