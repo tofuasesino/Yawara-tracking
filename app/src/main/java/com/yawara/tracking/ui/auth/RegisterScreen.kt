@@ -178,8 +178,9 @@ fun createUserDoc(email: String, nameAndSurname: String) {
             "name" to nameAndSurname,
             "email" to email,
             "role" to "alumno",
-            "rank" to "white belt",
-            "joinDate" to Utils.getDateZeroed()
+            "rank" to "Blanco I",
+            "joinDate" to Utils.getDateZeroed(),
+            "lastRankUpdate" to Utils.getDateZeroed()
         )
 
         FirebaseManager.firestore.collection("users").document(uid).set(userDoc)

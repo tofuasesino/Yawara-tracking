@@ -22,3 +22,5 @@ val Gondola = Color(0xFF333333)
 val Red = Color(0xFFB00020)
 val EerieBlack = Color(0xFF1C1C1C)
 
+val Gold = Color(0xFFF7D311)
+

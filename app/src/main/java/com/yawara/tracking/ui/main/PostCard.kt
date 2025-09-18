@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import com.yawara.tracking.domain.model.Post
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.navigation.Screen
+import com.yawara.tracking.ui.theme.CustomTypography
 
 @Composable
 fun PostCard(post: Post) {
@@ -30,13 +31,13 @@ fun PostCard(post: Post) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(text = post.title, style = MaterialTheme.typography.titleLarge)
+            Text(text = post.title, style = CustomTypography.titleLarge)
             Spacer(modifier = Modifier.height(4.dp))
             Row {
                 Text(
-                    text = "${post.author}, ${Utils.parseDate(post.createdAt)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "${post.author}, ${Utils.parseDateWithHour(post.createdAt)}",
+                    style = CustomTypography.bodyMedium,
+                    //color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -54,7 +55,7 @@ fun PostCard(post: Post) {
             }
             Text(
                 text = post.content,
-                style = MaterialTheme.typography.bodyLarge
+                style = CustomTypography.bodyLarge
             )
         }
     }
@@ -77,13 +78,13 @@ fun RecentPostCard(post: Post, navController: NavController) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(text = post.title, style = MaterialTheme.typography.titleLarge)
+            Text(text = post.title, style = CustomTypography.titleLarge)
             Spacer(modifier = Modifier.height(4.dp))
             Row {
                 Text(
-                    text = "${post.author}, ${Utils.parseDate(post.createdAt)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "${post.author}, ${Utils.parseDateWithHour(post.createdAt)}",
+                    style = CustomTypography.bodyMedium,
+                    //color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -101,7 +102,7 @@ fun RecentPostCard(post: Post, navController: NavController) {
             }
             Text(
                 text = post.content,
-                style = MaterialTheme.typography.bodyLarge,
+                style = CustomTypography.bodyLarge,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )

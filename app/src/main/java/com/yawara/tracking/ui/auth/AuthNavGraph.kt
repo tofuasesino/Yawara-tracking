@@ -17,7 +17,10 @@ import kotlinx.coroutines.tasks.await
 
 
 @Composable
-fun AuthNavGraph(navigationController: NavHostController, paddingValues: PaddingValues) {
+fun AuthNavGraph(
+    navigationController: NavHostController,
+    paddingValues: PaddingValues,
+) {
     val auth = FirebaseManager.auth
     var startDestination by rememberSaveable { mutableStateOf<String?>(null) }
 

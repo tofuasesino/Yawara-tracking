@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,11 +43,12 @@ fun AuthScreen(navigateToLogin: () -> Unit = {}, navigateToSignUp: () -> Unit = 
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Image(
-            painter = painterResource(id = R.drawable.yawara_icon),
+            painter = painterResource(id = R.drawable.yawara_octopus),
             contentDescription = "gym logo",
             modifier = Modifier
                 .clip(CircleShape)
                 .size(150.dp)
+                .aspectRatio(.5f)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Dojo Yawara", fontSize = 60.sp)

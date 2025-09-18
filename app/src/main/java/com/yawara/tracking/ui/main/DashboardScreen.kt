@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,7 +15,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -30,13 +28,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import co.yml.charts.axis.AxisData
-import co.yml.charts.axis.DataCategoryOptions
 import co.yml.charts.common.model.Point
-import co.yml.charts.common.utils.DataUtils
 import co.yml.charts.ui.barchart.BarChart
 import co.yml.charts.ui.barchart.models.BarChartData
 import co.yml.charts.ui.barchart.models.BarData
@@ -46,20 +43,17 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.yawara.tracking.R
-import com.yawara.tracking.data.repository.UserRepository
 import com.yawara.tracking.domain.usecase.Utils
-import com.yawara.tracking.ui.viewmodel.DashboardViewModel
+import com.yawara.tracking.ui.theme.CustomTypography
+import com.yawara.tracking.ui.viewmodel.AuthViewModel
 import com.yawara.tracking.ui.viewmodel.PostViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DashboardScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: AuthViewModel
 ) {
-
-    val userRepository = remember { UserRepository() }
-    val factory = remember { DashboardViewModelFactory(userRepository) }
-    val viewModel: DashboardViewModel = viewModel(factory = factory)
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -80,12 +74,7 @@ fun DashboardScreen(
             viewModel.fetchThirtyCheckInsByUser()
             hasFetched.value = true
         }
-        /*
-        if (!hasFetched.value) {
-            viewModel.fetchThirtyCheckInsByUser()
-            hasFetched.value = true
-        }
-         */
+
         if (postCreated) {
             snackbarHostState.showSnackbar(
                 message = "Post creado con éxito."
@@ -119,14 +108,12 @@ fun DashboardScreen(
         ) {
             Text(
                 text = "Tu asistencia los últimos 30 días",
-                style = MaterialTheme.typography.displayLarge,
-                modifier = Modifier.padding(vertical = 5.dp)
+                style = CustomTypography.displayLarge,
+                modifier = Modifier.padding(vertical = 5.dp).align(alignment = Alignment.CenterHorizontally)
             )
 
             AttendanceChartCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 300.dp), chartDates
+                chartDates
             )
             Spacer(modifier = Modifier.height(16.dp))
             RecentPosts(modifier = Modifier.fillMaxWidth(), navController)
@@ -137,7 +124,7 @@ fun DashboardScreen(
 }
 
 @Composable
-fun AttendanceChartCard(modifier: Modifier = Modifier, chartDates: Set<String>) {
+fun AttendanceChartCard(chartDates: Set<String>) {
 
 
     val maxRange = 1
@@ -181,7 +168,7 @@ fun AttendanceChartCard(modifier: Modifier = Modifier, chartDates: Set<String>) 
         yAxisData = yAxisData,
         barStyle = BarStyle(
             paddingBetweenBars = 3.dp,
-            barWidth = 8.dp
+            barWidth = 8.dp,
         ),
         showXAxis = true,
         backgroundColor = MaterialTheme.colorScheme.background,
@@ -214,13 +201,13 @@ fun RecentPosts(
     Column(modifier = modifier) {
         Text(
             text = "Noticias recientes",
-            modifier = Modifier.padding(vertical = 8.dp),
-            style = MaterialTheme.typography.displayLarge
+            modifier = Modifier.padding(vertical = 8.dp).align(alignment = Alignment.CenterHorizontally),
+            style = CustomTypography.displayLarge
         )
         if (recentPosts.isEmpty()) {
             Text(
-                "No recent posts found.",
-                style = MaterialTheme.typography.bodyMedium,
+                "No se han encontrado posts recientes.",
+                style = CustomTypography.bodyMedium,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         } else {

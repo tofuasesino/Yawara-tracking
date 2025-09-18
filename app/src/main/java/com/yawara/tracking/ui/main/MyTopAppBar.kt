@@ -2,6 +2,7 @@ package com.yawara.tracking.ui.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,14 +23,15 @@ import com.yawara.tracking.R
 @Composable
 fun MyTopAppBar() {
     CenterAlignedTopAppBar(
-        title = { Text(text = "Dojo Yawara Jiu Jitsu") },
+        title = { Text(text = "Jiu Jitsu Academy") },
         navigationIcon = {
             Image(
-                painter = painterResource(id = R.drawable.yawara_icon),
+                painter = painterResource(id = R.drawable.yawara_octopus),
                 contentDescription = "gym logo",
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(40.dp)
+                    .aspectRatio(.5f)
             )
         }
     )

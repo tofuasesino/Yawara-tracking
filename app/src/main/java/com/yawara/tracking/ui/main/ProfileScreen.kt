@@ -1,7 +1,6 @@
 package com.yawara.tracking.ui.main
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,16 +17,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.navigation.Screen
-import com.yawara.tracking.ui.viewmodel.ProfileScreenViewModel
+import com.yawara.tracking.ui.theme.CustomTypography
+import com.yawara.tracking.ui.viewmodel.AuthViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ProfileScreen(navController: NavController, viewModel: ProfileScreenViewModel = viewModel()) {
+fun ProfileScreen(navController: NavController, viewModel: AuthViewModel = viewModel()) {
 
     Scaffold() {
         Column(
@@ -35,8 +35,24 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileScreenViewMode
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
-            Text(text = "???", modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = viewModel.userData?.name ?: "Tu perfil",
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                style = CustomTypography.titleLarge
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = ("Cinturón " + viewModel.userData?.rank + "   ~   " + Utils.parseDate(viewModel.userData?.lastRankUpdate)),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                style = CustomTypography.bodyLarge
+            )
+            Text(
+                text = ("Miembro desde " + Utils.parseDate(viewModel.userData?.joinDate)),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                style = CustomTypography.bodyLarge
+            )
+            Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = {
                     viewModel.closeSession()

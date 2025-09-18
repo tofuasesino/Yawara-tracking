@@ -11,7 +11,7 @@ sealed class Screen(val route: String, val title: String? = null, val icon: Imag
     object Dashboard : Screen("dashboard_screen", "Inicio", Icons.Default.Home)
     object CheckIn : Screen("checkin_screen", "Check In", Icons.Default.Check)
     object Posts : Screen("posts_screen", "Contenido", Icons.Default.VideoLibrary)
-    object Profile : Screen("profile_screen", "???", Icons.Default.Person)
+    object Profile : Screen("profile_screen", "Perfil", Icons.Default.Person)
     object CreatePostScreen : Screen("create_post_screen")
 
     object Auth : Screen("auth_screen")

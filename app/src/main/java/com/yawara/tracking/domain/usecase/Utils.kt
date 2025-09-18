@@ -43,9 +43,16 @@ object Utils {
     }
 
     // This fun is only intended to be used within the Post creation screen, returns date and time the post was created.
-    fun parseDate(createdAt: Timestamp): String {
+    fun parseDateWithHour(createdAt: Timestamp): String {
         val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
         val time = createdAt.toDate()
+        return dateFormat.format(time)
+    }
+
+    // This function parses a Firebase Timestamp into a date in the format dd-MM-yyyy and returns it.
+    fun parseDate(timestamp: Timestamp?): String {
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val time = timestamp!!.toDate()
         return dateFormat.format(time)
     }
 
