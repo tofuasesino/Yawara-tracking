@@ -1,7 +1,7 @@
 package com.yawara.tracking.data.repository
 
 import com.yawara.tracking.data.datasource.FirebaseManager
-import com.yawara.tracking.domain.model.User
+import com.yawara.tracking.data.model.User
 import kotlinx.coroutines.tasks.await
 
 class UserRepository {

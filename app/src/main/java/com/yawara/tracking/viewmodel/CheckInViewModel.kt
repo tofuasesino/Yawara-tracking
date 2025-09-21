@@ -1,4 +1,4 @@
-package com.yawara.tracking.ui.viewmodel
+package com.yawara.tracking.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -7,15 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Timestamp
 import com.yawara.tracking.data.datasource.FirebaseManager
-import com.yawara.tracking.domain.model.CheckIn
+import com.yawara.tracking.data.model.CheckIn
 import com.yawara.tracking.domain.usecase.Utils
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class CheckInViewModel : ViewModel() {
     private val db = FirebaseManager.firestore.collection("checkIns")

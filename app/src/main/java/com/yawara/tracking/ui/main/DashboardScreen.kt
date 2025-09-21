@@ -45,8 +45,8 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import com.yawara.tracking.R
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.theme.CustomTypography
-import com.yawara.tracking.ui.viewmodel.AuthViewModel
-import com.yawara.tracking.ui.viewmodel.PostViewModel
+import com.yawara.tracking.viewmodel.AuthViewModel
+import com.yawara.tracking.viewmodel.PostViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable

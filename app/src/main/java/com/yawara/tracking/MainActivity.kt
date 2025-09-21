@@ -23,7 +23,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navigationController = rememberNavController()
 
-
             YawaraTrackingAppTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize()

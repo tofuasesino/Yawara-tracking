@@ -9,14 +9,13 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.yawara.tracking.domain.model.Post
+import com.yawara.tracking.data.model.Post
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.navigation.Screen
 import com.yawara.tracking.ui.theme.CustomTypography

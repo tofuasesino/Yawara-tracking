@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.yawara.tracking.R
-import com.yawara.tracking.ui.viewmodel.AuthViewModel
+import com.yawara.tracking.viewmodel.AuthViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -137,7 +137,7 @@ fun CreatePostScreen(navController: NavController, viewModel: AuthViewModel = vi
                                 message = "El post necesita título y cuerpo."
                             )
                         }
-                        return@Button
+
                     } else {
                         viewModel.createPost(title, content, videoUrl, author)
                         navController.previousBackStackEntry
