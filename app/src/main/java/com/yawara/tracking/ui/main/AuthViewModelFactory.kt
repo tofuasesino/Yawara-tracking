@@ -3,7 +3,7 @@ package com.yawara.tracking.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.yawara.tracking.data.repository.UserRepository
-import com.yawara.tracking.ui.viewmodel.AuthViewModel
+import com.yawara.tracking.viewmodel.AuthViewModel
 
 
 class AuthViewModelFactory(private val repository: UserRepository) :

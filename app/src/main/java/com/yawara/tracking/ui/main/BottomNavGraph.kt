@@ -9,7 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.yawara.tracking.ui.navigation.Screen
-import com.yawara.tracking.ui.viewmodel.AuthViewModel
+import com.yawara.tracking.viewmodel.AuthViewModel
 
 @Composable
 fun BottomNavGraph(

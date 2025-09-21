@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 import com.yawara.tracking.domain.usecase.Utils
 import com.yawara.tracking.ui.navigation.Screen
 import com.yawara.tracking.ui.theme.CustomTypography
-import com.yawara.tracking.ui.viewmodel.AuthViewModel
+import com.yawara.tracking.viewmodel.AuthViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

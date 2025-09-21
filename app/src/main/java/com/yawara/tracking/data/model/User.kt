@@ -1,7 +1,6 @@
-package com.yawara.tracking.domain.model
+package com.yawara.tracking.data.model
 
 import com.google.firebase.Timestamp
-import java.util.Date
 
 data class User(
     var uid: String = "",

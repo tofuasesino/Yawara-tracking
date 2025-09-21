@@ -8,7 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.yawara.tracking.data.repository.UserRepository
-import com.yawara.tracking.ui.viewmodel.AuthViewModel
+import com.yawara.tracking.viewmodel.AuthViewModel
 
 @Composable
 fun MainScreen(navController: NavController) {

@@ -1,4 +1,4 @@
-package com.yawara.tracking.ui.viewmodel
+package com.yawara.tracking.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -8,9 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yawara.tracking.data.datasource.FirebaseManager
 import com.yawara.tracking.data.repository.UserRepository
-import com.yawara.tracking.domain.model.CheckIn
-import com.yawara.tracking.domain.model.Post
-import com.yawara.tracking.domain.model.User
+import com.yawara.tracking.data.model.CheckIn
+import com.yawara.tracking.data.model.Post
+import com.yawara.tracking.data.model.User
 import com.yawara.tracking.domain.usecase.Utils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ import java.util.Locale
 class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
 
 
-    private val _chartDatesStateFlow = MutableStateFlow<Set<String>>(emptySet())
+    private var _chartDatesStateFlow = MutableStateFlow<Set<String>>(emptySet())
     val chartDatesStateFlow: MutableStateFlow<Set<String>> = _chartDatesStateFlow
 
     var userData by mutableStateOf<User?>(null)
@@ -45,21 +45,21 @@ class AuthViewModel(private val userRepository: UserRepository) : ViewModel() {
     }
 
     suspend fun fetchThirtyCheckInsByUser() {
-            val thirtyDaysAgo = Utils.getLastThirtyDaysZeroed()
+        val thirtyDaysAgo = Utils.getLastThirtyDaysZeroed()
 
-            val snapshot =
-                FirebaseManager.firestore.collection("checkIns")
-                    .whereEqualTo("userId", userData?.uid)
-                    .whereGreaterThanOrEqualTo("timestamp", thirtyDaysAgo)
-                    .get()
-                    .await()
+        val snapshot =
+            FirebaseManager.firestore.collection("checkIns")
+                .whereEqualTo("userId", userData?.uid)
+                .whereGreaterThanOrEqualTo("timestamp", thirtyDaysAgo)
+                .get()
+                .await()
 
-            val checkIns = snapshot.documents.mapNotNull { it.toObject(CheckIn::class.java) }
+        val checkIns = snapshot.documents.mapNotNull { it.toObject(CheckIn::class.java) }
 
-            val dateFormat = SimpleDateFormat("dd-MM", Locale.getDefault())
-            val checkInDates = checkIns.map { dateFormat.format(it.timestamp.toDate()) }.toSet()
+        val dateFormat = SimpleDateFormat("dd-MM", Locale.getDefault())
+        val checkInDates = checkIns.map { dateFormat.format(it.timestamp.toDate()) }.toSet()
 
-            _chartDatesStateFlow.value = checkInDates
+        _chartDatesStateFlow.value = checkInDates
     }
 
     fun createPost(title: String, content: String, videoUrl: String, author: String) {

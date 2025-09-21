@@ -1,14 +1,12 @@
-package com.yawara.tracking.ui.viewmodel
+package com.yawara.tracking.viewmodel
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.Query
 import com.yawara.tracking.data.datasource.FirebaseManager
-import com.yawara.tracking.domain.model.Post
+import com.yawara.tracking.data.model.Post
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
